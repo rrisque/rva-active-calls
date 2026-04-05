@@ -1,30 +1,61 @@
 {
   "expo": {
-    "name": "rva-active-calls",
+    "name": "RVA Active Calls",
     "slug": "rva-active-calls",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1a1a2e"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rva.activecalls",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Shows your location relative to active emergency calls",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Enables notifications for nearby emergency calls even when the app is in the background",
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "remote-notification"
+        ]
+      }
     },
     "android": {
+      "package": "com.rva.activecalls",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK"
+      ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Enables notifications for nearby emergency calls even when the app is in the background"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#e74c3c"
+        }
+      ],
+      "expo-background-fetch",
+      "expo-router"
+    ]
   }
 }
