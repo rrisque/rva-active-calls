@@ -89,28 +89,38 @@ export function MapScreen({ calls, userLocation, focusCall }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // Show user location marker and center map
+  // Show user location via browser Geolocation API (more reliable than expo-location on web)
   useEffect(() => {
-    if (!mapRef.current || !leafletReady || !userLocation) return;
-    const L = (window as any).L;
+    if (!mapRef.current || !leafletReady) return;
+    if (!('geolocation' in navigator)) return;
 
-    mapRef.current.setView(
-      [userLocation.coords.latitude, userLocation.coords.longitude],
-      14
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const L = (window as any).L;
+        const { latitude, longitude } = pos.coords;
+
+        mapRef.current!.setView([latitude, longitude], 14);
+
+        if (userMarkerRef.current) userMarkerRef.current.remove();
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:16px;height:16px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6);"></div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
+        userMarkerRef.current = L.marker([latitude, longitude], {
+          icon,
+          zIndexOffset: 1000,
+        })
+          .addTo(mapRef.current!)
+          .bindPopup('You are here');
+      },
+      () => {
+        // Location denied or unavailable — stay centered on Richmond
+      },
+      { enableHighAccuracy: false, timeout: 15000 }
     );
-
-    if (userMarkerRef.current) userMarkerRef.current.remove();
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:16px;height:16px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6);"></div>`,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8],
-    });
-    userMarkerRef.current = L.marker(
-      [userLocation.coords.latitude, userLocation.coords.longitude],
-      { icon, zIndexOffset: 1000 }
-    ).addTo(mapRef.current).bindPopup('You are here');
-  }, [userLocation, leafletReady]);
+  }, [leafletReady]);
 
   // Update markers when calls change
   useEffect(() => {
