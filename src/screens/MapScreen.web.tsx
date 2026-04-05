@@ -61,6 +61,7 @@ export function MapScreen({ calls, userLocation, focusCall }: Props) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const userMarkerRef = useRef<any>(null);
   const [selectedCall, setSelectedCall] = useState<ActiveCall | null>(null);
   const [leafletReady, setLeafletReady] = useState(false);
 
@@ -88,14 +89,27 @@ export function MapScreen({ calls, userLocation, focusCall }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // Center on user location once available
+  // Show user location marker and center map
   useEffect(() => {
-    if (mapRef.current && userLocation) {
-      mapRef.current.setView(
-        [userLocation.coords.latitude, userLocation.coords.longitude],
-        14
-      );
-    }
+    if (!mapRef.current || !leafletReady || !userLocation) return;
+    const L = (window as any).L;
+
+    mapRef.current.setView(
+      [userLocation.coords.latitude, userLocation.coords.longitude],
+      14
+    );
+
+    if (userMarkerRef.current) userMarkerRef.current.remove();
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 0 8px rgba(66,133,244,0.6);"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+    userMarkerRef.current = L.marker(
+      [userLocation.coords.latitude, userLocation.coords.longitude],
+      { icon, zIndexOffset: 1000 }
+    ).addTo(mapRef.current).bindPopup('You are here');
   }, [userLocation, leafletReady]);
 
   // Update markers when calls change
