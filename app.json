@@ -41,6 +41,14 @@
         "WAKE_LOCK"
       ]
     },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/icon.png"
+    },
+    "experiments": {
+      "baseUrl": "/rva-active-calls"
+    },
     "plugins": [
       [
         "expo-location",
